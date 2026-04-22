@@ -1,141 +1,129 @@
 import React, { useState } from 'react'
 
 const westernVariables = [
-  { type: 'exposure', label: '暴露因素', icon: '☀️', role: 'exposure' },
-  { type: 'outcome', label: '结局', icon: '🎯', role: 'outcome' },
-  { type: 'confounder', label: '混杂因素', icon: '🔀', role: 'confounder' },
-  { type: 'mediator', label: '中介因素', icon: '🔄', role: 'mediator' },
-  { type: 'effect-modifier', label: '效应修饰', icon: '⚡', role: 'effect_modifier' },
-  { type: 'instrument', label: '工具变量', icon: '🔧', role: 'instrument' },
-  { type: 'proxy', label: '代理变量', icon: '📎', role: 'proxy' },
-  { type: 'unobserved', label: '未测变量', icon: '❓', role: 'unobserved' },
+  { role: 'exposure',        label: '暴露 ☀️',     icon: '☀️' },
+  { role: 'outcome',          label: '结局 🎯',     icon: '🎯' },
+  { role: 'confounder',       label: '混杂 🔀',     icon: '🔀' },
+  { role: 'mediator',         label: '中介 🔄',     icon: '🔄' },
+  { role: 'effect_modifier',  label: '效应修饰 ⚡', icon: '⚡' },
+  { role: 'instrument',       label: '工具变量 🔧', icon: '🔧' },
+  { role: 'proxy',            label: '代理变量 📎', icon: '📎' },
+  { role: 'unobserved',      label: '未测变量 ❓', icon: '❓' },
 ]
 
 const tcmVariables = [
-  { type: 'pathogen', label: '病位', icon: '📍', role: 'pathogen' },
-  { type: 'syndrome', label: '证素', icon: '🧭', role: 'syndrome' },
-  { type: 'symptom', label: '症状', icon: '📋', role: 'symptom' },
-  { type: 'constitution', label: '体质', icon: '🧬', role: 'constitution' },
-  { type: 'external-factor', label: '外邪', icon: '🌪️', role: 'external-factor' },
-  { type: 'internal-factor', label: '内伤', icon: '💝', role: 'internal-factor' },
-  { type: 'TCM-confounder', label: '病因要素', icon: '🔀', role: 'confounder' },
+  { role: 'pathogen',        label: '病位 📍',     icon: '📍' },
+  { role: 'syndrome',        label: '证素 🧭',     icon: '🧭' },
+  { role: 'symptom',          label: '症状 📋',     icon: '📋' },
+  { role: 'constitution',    label: '体质 🧬',    icon: '🧬' },
+  { role: 'external-factor', label: '外邪 🌪️',     icon: '🌪️' },
+  { role: 'internal-factor',  label: '内伤 💝',     icon: '💝' },
+  { role: 'confounder',       label: '病因要素 🔀', icon: '🔀' },
 ]
 
 const getNodeStyle = (role, nodeColors) => {
-  const colors = nodeColors[role] || nodeColors.other
+  const c = nodeColors[role] || nodeColors.other
   return {
-    background: colors.bg,
-    border: `2px ${colors.dashed ? 'dashed' : 'solid'} ${colors.border}`,
+    background: c.bg,
+    border: `2px ${c.dashed ? 'dashed' : 'solid'} ${c.border}`,
     borderRadius: '8px',
-    color: colors.text,
-    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    color: c.text,
   }
 }
 
 export function Toolbar({ mode, onAddNode, onClear, nodeColors }) {
-  const [showClearConfirm, setShowClearConfirm] = useState(false)
+  const [confirming, setConfirming] = useState(false)
   const variables = mode === 'western' ? westernVariables : tcmVariables
 
   const handleAdd = (v) => {
-    const id = `${v.type}-${Date.now()}`
-    const offsetX = Math.random() * 60 - 30
+    // Position is handled by auto-layout (0,0 = placeholder)
     onAddNode({
-      id,
-      position: { x: 0, y: 0 }, // Will be auto-layouted
-      data: { label: v.label, role: v.role, icon: v.icon },
+      position: { x: 0, y: 0 },
+      data: { label: v.label, role: v.role },
     })
   }
 
-  const handleClear = () => {
-    onClear()
-    setShowClearConfirm(false)
-  }
-
   return (
-    <aside className="w-56 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 overflow-y-auto shrink-0">
-      <h2 className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-3">
-        {mode === 'western' ? '🏥 添加变量节点' : '🏯 添加中医变量'}
-      </h2>
+    <aside className="w-56 border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-3 overflow-y-auto shrink-0 flex flex-col gap-3">
 
-      <div className="grid grid-cols-2 gap-2 mb-4">
-        {variables.map((v) => {
-          const style = getNodeStyle(v.role, nodeColors)
-          return (
+      <div>
+        <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-2">
+          {mode === 'western' ? '🏥 添加变量节点' : '🏯 添加中医变量'}
+        </h2>
+        <div className="grid grid-cols-2 gap-1.5">
+          {variables.map((v) => (
             <button
-              key={v.type}
+              key={v.role}
               onClick={() => handleAdd(v)}
-              className="flex flex-col items-center p-2 transition-all hover:scale-105"
-              style={style}
-              title={v.label}
+              className="flex flex-col items-center p-2 transition-all hover:scale-105 hover:shadow-md"
+              style={getNodeStyle(v.role, nodeColors)}
+              title={`添加${v.label}`}
             >
-              <span className="text-lg">{v.icon}</span>
-              <span className="text-xs mt-1 font-medium">{v.label}</span>
+              <span className="text-base">{v.icon}</span>
+              <span className="text-[11px] font-medium mt-0.5">{v.label}</span>
             </button>
-          )
-        })}
+          ))}
+        </div>
       </div>
 
-      <hr className="border-slate-200 dark:border-slate-700 my-3" />
+      <hr className="border-slate-200 dark:border-slate-700" />
 
-      {showClearConfirm ? (
-        <div className="space-y-2">
-          <p className="text-sm text-red-600 dark:text-red-400">确定清空画布？</p>
-          <div className="flex gap-2">
-            <button
-              onClick={handleClear}
-              className="flex-1 px-3 py-1.5 bg-red-500 text-white rounded text-sm hover:bg-red-600"
-            >
+      {/* Edge Type Legend */}
+      <div className="text-xs text-slate-500 dark:text-slate-400 space-y-1">
+        <p className="font-semibold text-slate-600 dark:text-slate-300 mb-1">➡️ 边类型（图例）</p>
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-1.5">
+            <svg width="16" height="10" viewBox="0 0 16 10"><line x1="1" y1="5" x2="13" y2="5" stroke="#2563eb" strokeWidth="2" markerEnd="url(#arr-blue)"/><defs><marker id="arr-blue" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#2563eb"/></marker></defs></svg>
+            <span>暴露→结局：直接效应</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <svg width="16" height="10" viewBox="0 0 16 10"><line x1="1" y1="5" x2="13" y2="5" stroke="#7c3aed" strokeWidth="2"/><path d="M10,2 L14,5 L10,8" fill="none" stroke="#7c3aed" strokeWidth="1.5"/></svg>
+            <span>混杂→任意：混杂</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <svg width="16" height="10" viewBox="0 0 16 10"><line x1="1" y1="5" x2="13" y2="5" stroke="#059669" strokeWidth="2"/><path d="M10,2 L14,5 L10,8" fill="none" stroke="#059669" strokeWidth="1.5"/></svg>
+            <span>暴露→中介→结局：中介</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <svg width="16" height="10" viewBox="0 0 16 10"><line x1="1" y1="2" x2="8" y2="5" stroke="#d97706" strokeWidth="2"/><line x1="13" y1="8" x2="8" y2="5" stroke="#d97706" strokeWidth="2"/><path d="M6,3 L9,5 L6,7" fill="none" stroke="#d97706" strokeWidth="1.5"/></svg>
+            <span>多入→节点：碰撞</span>
+          </div>
+        </div>
+      </div>
+
+      <hr className="border-slate-200 dark:border-slate-700" />
+
+      {/* Clear canvas */}
+      {confirming ? (
+        <div className="space-y-1.5">
+          <p className="text-xs text-red-500">确定清空画布？</p>
+          <div className="flex gap-1.5">
+            <button onClick={() => { onClear(); setConfirming(false) }}
+              className="flex-1 py-1.5 bg-red-500 text-white rounded text-xs font-medium hover:bg-red-600">
               确定
             </button>
-            <button
-              onClick={() => setShowClearConfirm(false)}
-              className="flex-1 px-3 py-1.5 bg-slate-200 dark:bg-slate-600 rounded text-sm"
-            >
+            <button onClick={() => setConfirming(false)}
+              className="flex-1 py-1.5 bg-slate-200 dark:bg-slate-600 rounded text-xs">
               取消
             </button>
           </div>
         </div>
       ) : (
-        <button
-          onClick={() => setShowClearConfirm(true)}
-          className="w-full px-3 py-1.5 text-sm text-slate-500 hover:text-red-500 border border-slate-200 dark:border-slate-600 rounded transition-colors"
-        >
+        <button onClick={() => setConfirming(true)}
+          className="w-full py-1.5 text-xs text-slate-400 hover:text-red-500 border border-slate-200 dark:border-slate-600 rounded transition-colors">
           🗑️ 清空画布
         </button>
       )}
 
-      <div className="mt-4 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg text-xs text-slate-500 dark:text-slate-400">
-        <p className="font-medium mb-2">💡 使用提示：</p>
-        <ul className="space-y-1">
-          <li>• 点击添加变量节点</li>
-          <li>• 拖拽节点边缘连接 = 添加因果箭头</li>
-          <li>• 点击节点查看详情</li>
-          <li>• 使用⚡自动布局整理</li>
-          {mode === 'tcm' && (
-            <>
-              <li>• 病位+证素构建DAG</li>
-              <li>• 参考《黄帝内经》方法</li>
-            </>
-          )}
-        </ul>
-      </div>
-
-      {/* Edge Type Legend */}
-      <div className="mt-4 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg text-xs text-slate-500 dark:text-slate-400">
-        <p className="font-medium mb-2">➡️ 箭头类型：</p>
-        <ul className="space-y-1">
-          <li className="flex items-center gap-1">
-            <span style={{ color: '#2563eb' }}>—▶</span> 直接效应
-          </li>
-          <li className="flex items-center gap-1">
-            <span style={{ color: '#7c3aed' }}>—▶</span> 混杂
-          </li>
-          <li className="flex items-center gap-1">
-            <span style={{ color: '#059669' }}>—▶</span> 中介
-          </li>
-          <li className="flex items-center gap-1">
-            <span style={{ color: '#dc2626' }}>—▶</span> 偏倚路径
-          </li>
+      {/* Tips */}
+      <div className="mt-auto p-2.5 bg-slate-50 dark:bg-slate-700/50 rounded-lg text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+        <p className="font-semibold text-slate-600 dark:text-slate-300 mb-1">💡 使用提示</p>
+        <ul className="space-y-0.5">
+          <li>• 点击按钮添加变量</li>
+          <li>• 拖拽节点边缘连线</li>
+          <li>• 连线时自动判断边类型</li>
+          <li>• ⚡ 自动布局整理图形</li>
+          <li>• 点击节点编辑角色</li>
         </ul>
       </div>
     </aside>
