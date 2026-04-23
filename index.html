@@ -7,7 +7,21 @@
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="loading" style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:system-ui,sans-serif;color:#64748b;">
+        <div style="text-align:center;">
+          <div style="width:40px;height:40px;border:3px solid #e2e8f0;border-top-color:#3b82f6;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px;"></div>
+          <p style="margin:0;font-size:14px;">DAG-WB 加载中...</p>
+          <p style="margin:8px 0 0;font-size:12px;color:#94a3b8;">如果长时间无响应，请尝试 Ctrl+F5 强制刷新</p>
+        </div>
+      </div>
+    </div>
+    <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    <noscript>
+      <div style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:system-ui,sans-serif;color:#dc2626;">
+        <p>请启用 JavaScript 以使用 DAG-WB 平台</p>
+      </div>
+    </noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
