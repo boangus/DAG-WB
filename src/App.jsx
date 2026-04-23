@@ -449,7 +449,7 @@ function AppContent() {
 
         {/* Toolbar */}
         <Toolbar
-          onAdd={v => {
+          onAddNode={v => {
             const id = `${v.label}-${Date.now()}`
             const n = {
               id, position: { x: 100 + Math.random() * 200, y: 100 + Math.random() * 200 },
@@ -572,6 +572,9 @@ function AppContent() {
             onUpdate={data => updateNode(selected.id, data)}
             onDelete={() => deleteNode(selected.id)}
             onClose={() => setSelected(null)}
+            mode={mode}
+            nodeColors={NODE_COLORS}
+            edgeColors={EDEF}
           />
         )}
 
@@ -592,7 +595,7 @@ function AppContent() {
             </div>
             <div className="flex-1 overflow-hidden">
               <ReviewAgent mode={mode}
-                onExport={ev => {
+                onExportEvidence={ev => {
                   if (!ev?.variables?.length) return
                   const nds = ev.variables.map((v, i) => styleNode({
                     id: `v-${i}-${Date.now()}`,
